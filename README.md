@@ -21,8 +21,8 @@ This project demonstrates an efficient way to manage Server-Sent Events (SSE) co
 Clone the repository:
 
 ```bash
-git clone https://github.com/yourrepo/sse-weak-pointer.git
-cd sse-weak-pointer
+git clone https://github.com/9ssi7/goweaksse.git
+cd goweaksse
 ```
 
 Run the server:
