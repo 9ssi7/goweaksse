@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #messages { margin-top: 20px; padding: 10px; border: 1px solid #ccc; height: 200px; overflow-y: auto; }
+        .msg { padding: 5px; margin-bottom: 5px; border-bottom: 1px solid #ddd; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+
+    <h2>Server-Sent Events (SSE) Demo</h2>
+
+    <button id="start">Open Connection</button>
+    <button id="stop" disabled>Close Connection</button>
+
+    <div id="messages"></div>
+
+    <script>
+        let eventSource = null;
+        const messagesDiv = document.getElementById("messages");
+        const startBtn = document.getElementById("start");
+        const stopBtn = document.getElementById("stop");
+
+        function logMessage(text, isError = false) {
+            const msg = document.createElement("div");
+            msg.className = "msg" + (isError ? " error" : "");
+            msg.textContent = text;
+            messagesDiv.appendChild(msg);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        startBtn.addEventListener("click", () => {
+            if (eventSource) return;
+
+            eventSource = new EventSource("http://localhost:8080/events?id=" + Math.random().toString(36).substring(7));
+
+            eventSource.onopen = () => {
+                logMessage("✅ SSE connection opened!");
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+            };
+
+            eventSource.onmessage = (event) => {
+                logMessage("📩 New message: " + event.data);
+            };
+
+            eventSource.onerror = (err) => {
+                console.error(err);
+                logMessage("❌ Connection error! (Did the server close?)", true);
+                eventSource.close();
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                eventSource = null;
+            };
+        });
+
+        stopBtn.addEventListener("click", () => {
+            if (eventSource) {
+                eventSource.close();
+                logMessage("❌ SSE connection closed.");
+                eventSource = null;
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+            }
+        });
+    </script>
+
+</body>
+</html>
